@@ -53,13 +53,12 @@ services:
     db:
         image: postgres:16
         restart: unless-stopped
-        user: postgres
         ports:
             - "${DB_PORT:-5432}:5432"
         environment:
-            - POSTGRES_DB=${DB_DATABASE:-app}
-            - POSTGRES_USER=${DB_USERNAME:-laravel}
-            - POSTGRES_PASSWORD=${DB_PASSWORD:-secret}
+            - POSTGRES_DB=${DB_DATABASE?error}
+            - POSTGRES_USER=${DB_USERNAME?error}
+            - POSTGRES_PASSWORD=${DB_PASSWORD?error}
         volumes:
             - postgres-data-production:/var/lib/postgresql/data
         networks:
@@ -75,24 +74,6 @@ services:
             interval: 10s
             timeout: 5s
             retries: 5
-
-    # db:
-    #     image: mysql
-    #     ports:
-    #         - "${DB_PORT:-3306}:3306"
-    #     environment:
-    #         MYSQL_RANDOM_ROOT_PASSWORD: true
-    #         MYSQL_USER: ${DB_USERNAME?error}
-    #         MYSQL_PASSWORD: ${DB_PASSWORD?error}
-    #         MYSQL_DATABASE: ${DB_DATABASE?error}
-    #     volumes:
-    #         - mysql-prod-volume:/var/lib/mysql
-    #     networks:
-    #         - laravel-production
-    #     healthcheck:
-    #         test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-    #         timeout: 20s
-    #         retries: 10
 
     redis:
         image: redis:alpine

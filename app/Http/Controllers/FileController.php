@@ -5,6 +5,7 @@ namespace SegWeb\Http\Controllers;
 
 use Illuminate\Http\Request;
 use SegWeb\File;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use SegWeb\Http\Controllers\Tools;
 use SegWeb\Http\Controllers\TermController;
 use SegWeb\Http\Controllers\FileResultsController;
@@ -68,7 +69,7 @@ class FileController extends Controller {
             $term = new TermController();
             $terms = $term->getTerm();
 
-            $file_location = Storage::disk('local')->getDriver()->getAdapter()->applyPathPrefix($file->file_path);
+            $file_location = Storage::disk('local')->path($file->file_path);
             $fn = fopen("$file_location","r");
             $line_number = 1;
             $file_content = NULL;
@@ -89,7 +90,7 @@ class FileController extends Controller {
             }
             fclose($fn);
             return $file_content;
-        } catch (Illuminate\Contracts\Filesystem\FileNotFoundException $exception) {
+        } catch (FileNotFoundException $exception) {
             return "File Not Found!";
         }
     }
