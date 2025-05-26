@@ -1,0 +1,37 @@
+---
+- name: Setup Docker e deploy da aplicação
+  hosts: all
+  become: yes
+  vars:
+    projeto_dir: /home/vagrant/manutencao-software
+    repo_url: "https://github.com/diegoadborges/manutencao-software.git"
+
+  tasks:
+    - name: Instala Docker via script oficial
+      shell: |
+        curl -fsSL https://get.docker.com -o get-docker.sh
+        sh get-docker.sh
+        usermod -aG docker vagrant
+      args:
+        creates: /usr/bin/docker
+
+    - name: Clona repositório
+      git:
+        repo: "{{ repo_url }}"
+        dest: "{{ projeto_dir }}"
+        force: yes
+      become_user: vagrant
+
+    - name: Copia .env
+      copy:
+        src: .env
+        dest: "{{ projeto_dir }}/.env"
+        owner: vagrant
+        group: vagrant
+
+    - name: Sobe aplicação
+      shell: docker compose -f compose.prod.yaml up -d
+      args:
+        chdir: "{{ projeto_dir }}"
+      become_user: vagrant
+
